@@ -15,7 +15,7 @@ forked/combined for this package:
 
 This project assumes a Java 8 and Maven build system.
 
-In addition, you'll need our Mavenized MATE model jar:
+In addition, you'll need our Mavenized MATE model jar (which is over 600MB):
 
 ```
 <dependency>
