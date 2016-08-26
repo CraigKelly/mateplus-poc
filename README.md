@@ -8,7 +8,8 @@ Note that our LICENSE file is GPL v2. This was not our choice (although it's
 not a bad choice). We are using the original license from the two packages
 forked/combined for this package:
 
-* Bohnet's "Anna" code (matetools)
+* Bohnet's "Anna" code (matetools) from
+  https://code.google.com/archive/p/mate-tools/source/default/source
 * mateplus from https://github.com/microth/mateplus
 
 # Using
