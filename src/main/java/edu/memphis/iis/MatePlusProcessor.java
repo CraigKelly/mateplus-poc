@@ -36,7 +36,7 @@ public class MatePlusProcessor {
     * -tokenize set loadPreprocessorWithTokenizer = true, skipPI = false, desegment = false
     * */
 
-    //TODO: accept inputStream or filename or something and then test on our sample file
+    //TODO: accept inputStream or filename or something and then test on our sample file in test resources
     public void defaultRun() throws ClassNotFoundException, IOException {
         // TODO: how does this work on our test file?
         Tokenizer tokenizer = new StanfordPTBTokenizer();
