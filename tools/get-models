@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $SCRIPT_DIR
+
+wget -c https://s3.amazonaws.com/repo.iis.memphis.edu/release/edu/memphis/iis/mateplus-models/4.31/mateplus-models-4.31.pom
+wget -c https://s3.amazonaws.com/repo.iis.memphis.edu/release/edu/memphis/iis/mateplus-models/4.31/mateplus-models-4.31.jar
+
+mvn install:install-file -Dfile=./mateplus-models-4.31.jar -DpomFile=./mateplus-models-4.31.pom
+
+rm *.pom *.jar
