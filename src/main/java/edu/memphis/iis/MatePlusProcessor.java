@@ -9,19 +9,16 @@ import se.lth.cs.srl.SemanticRoleLabeler;
 import se.lth.cs.srl.corpus.Predicate;
 import se.lth.cs.srl.corpus.Sentence;
 import se.lth.cs.srl.corpus.Word;
-import se.lth.cs.srl.pipeline.Pipeline;
 import se.lth.cs.srl.pipeline.Reranker;
-import se.lth.cs.srl.pipeline.Step;
 import se.lth.cs.srl.preprocessor.PipelinedPreprocessor;
 import se.lth.cs.srl.preprocessor.Preprocessor;
+import se.lth.cs.srl.preprocessor.tokenization.StanfordPTBTokenizer;
 import se.lth.cs.srl.preprocessor.tokenization.Tokenizer;
-import se.lth.cs.srl.preprocessor.tokenization.WhiteSpaceTokenizer;
 import se.lth.cs.srl.util.BohnetHelper;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.zip.ZipFile;
 
 
 public class MatePlusProcessor {
@@ -39,8 +36,10 @@ public class MatePlusProcessor {
     * -tokenize set loadPreprocessorWithTokenizer = true, skipPI = false, desegment = false
     * */
 
+    //TODO: accept inputStream or filename or something and then test on our sample file
     public void defaultRun() throws ClassNotFoundException, IOException {
-        Tokenizer tokenizer = new WhiteSpaceTokenizer(); //Yes - this is the default: Java tokenization
+        // TODO: how does this work on our test file?
+        Tokenizer tokenizer = new StanfordPTBTokenizer();
 
         //TODO: fix the next 3 by importing the mate-tools (see Downloads) and change them to accept streams
         Lemmatizer lemmatizer = BohnetHelper.getLemmatizer(new File("lemmatizer model"));
