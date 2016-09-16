@@ -14,7 +14,10 @@ forked/combined for this package:
 
 # Using
 
-This project assumes a Java 8 and Maven build system.
+This project assumes a Java 8 and Maven build system. Also note that for
+running unit tests or executing the models you'll probably need to insure
+that the VM has enough memory. If you're using an IDE to run the unit
+tests, you probably need to add VM options to the Run Configuration. 
 
 In addition, you'll need our Mavenized MATE model jar (which is over 600MB):
 

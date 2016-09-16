@@ -18,6 +18,8 @@ public class AppTest  extends TestCase {
         return new TestSuite(AppTest.class);
     }
 
+    // Attention: you probably need to tweak your IDE's memory settings to
+    // get these tests to run (I use 2GB min and 4GB max).
     public void testApp() {
         MatePlusProcessor processor = new MatePlusProcessor();
         try {

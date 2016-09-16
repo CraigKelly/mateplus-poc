@@ -54,7 +54,6 @@ public class MatePlusProcessor {
         Parser parser = BohnetHelper.getParser(parserModel);
         Tagger tagger = BohnetHelper.getTagger(taggerModel);
 
-
         Preprocessor pp = new PipelinedPreprocessor(tokenizer, lemmatizer, tagger, null, parser);
 
         //TODO: the options can't be null - we need to get rid of them or something
