@@ -3,6 +3,7 @@ package edu.memphis.iis;
 import is2.lemmatizer.Lemmatizer;
 import is2.parser.Parser;
 import is2.tag.Tagger;
+import org.apache.commons.io.IOUtils;
 import se.lth.cs.srl.CompletePipeline;
 import se.lth.cs.srl.Parse;
 import se.lth.cs.srl.SemanticRoleLabeler;
@@ -17,14 +18,16 @@ import se.lth.cs.srl.preprocessor.tokenization.Tokenizer;
 import se.lth.cs.srl.util.BohnetHelper;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 
 
 public class MatePlusProcessor {
 //    private static String[] pipelineOptions = new String[]{
 //            "eng",										// language
-//            "-lemma", "models/lemma-eng.model",			// lemmatization mdoel
+//            "-lemma", "models/lemma-eng.model",			// lemmatization model
 //            "-tagger", "models/tagger-eng.model",		// tagger model
 //            "-parser", "models/parse-eng.model",		// parsing model
 //            "-srl", "models/srl-EMNLP14+fs-eng.model",	// SRL model
@@ -41,16 +44,20 @@ public class MatePlusProcessor {
         // TODO: how does this work on our test file?
         Tokenizer tokenizer = new StanfordPTBTokenizer();
 
-        //TODO: fix the next 3 by importing the mate-tools (see Downloads) and change them to accept streams
-        Lemmatizer lemmatizer = BohnetHelper.getLemmatizer(new File("lemmatizer model"));
+        // Get the models we need from our model dependency
+        File lemmaModel = extractMateModel("/CoNLL2009-ST-English-ALL.anna-3.3.lemmatizer.model");
+        File parserModel = extractMateModel("/CoNLL2009-ST-English-ALL.anna-3.3.parser.model");
+        File taggerModel = extractMateModel("/CoNLL2009-ST-English-ALL.anna-3.3.postagger.model");
 
-        Tagger tagger = BohnetHelper.getTagger(new File("tagger model"));
+        // TODO: issue with the lemmatizer reader? see our TODO in Lemmatizer
+        Lemmatizer lemmatizer = BohnetHelper.getLemmatizer(lemmaModel);
+        Parser parser = BohnetHelper.getParser(parserModel);
+        Tagger tagger = BohnetHelper.getTagger(taggerModel);
 
-        Parser parser = BohnetHelper.getParser(new File("parser model"));
 
         Preprocessor pp = new PipelinedPreprocessor(tokenizer, lemmatizer, tagger, null, parser);
 
-        //TODO: with out the options
+        //TODO: the options can't be null - we need to get rid of them or something
         Parse.parseOptions = null; //options.getParseOptions();
         SemanticRoleLabeler srl = new Reranker(Parse.parseOptions);
 
@@ -95,5 +102,38 @@ public class MatePlusProcessor {
         }
 
         //TODO: CoNLL 2009 SRL output
+    }
+
+    // Extract the model specified from the mate-models package.
+    //
+    // We use the warning class from that package in case we are running in an
+    // environment with multiple class loaders (like some web app servers).
+    // Since we're using class.getResourceAsStream, all resource paths should
+    // begin with a forward slash.
+    //
+    // See defaultRun for example usage
+    protected File extractMateModel(String resourcePath) throws IOException {
+        // Start reading resource
+        InputStream readStream = edu.memphis.iis.warning.class.getResourceAsStream(resourcePath);
+        if (readStream == null) {
+            throw new IOException("Resource-based MATE Model cannot be found: " + resourcePath);
+        }
+
+        // TODO: we re-write the models every time. Use consistent file name in temp directory instead?
+        // Setup the temp file
+        File tempFile = File.createTempFile("mate", "model");
+        tempFile.deleteOnExit();
+
+        // Write to the temp file
+        FileOutputStream writeStream = new FileOutputStream(tempFile);
+        try {
+            IOUtils.copy(readStream, writeStream);
+        }
+        finally {
+            writeStream.close();
+        }
+
+        // All done
+        return tempFile;
     }
 }

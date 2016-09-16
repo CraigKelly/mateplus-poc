@@ -178,6 +178,7 @@ public class Lemmatizer implements Tool, Train {
 			
 			pipe.cl = new Cluster(dis);
 
+			// TODO: hitting EOF Exception?
 			if (dis.available()>0) this.doUppercase = dis.readBoolean();
 		
 			
