@@ -6,7 +6,7 @@ import se.lth.cs.srl.Parse;
 
 public class ParseOptions extends Options {
 
-	ParseOptions() {
+	public ParseOptions() {
 	}
 
 	public ParseOptions(String[] args) {

@@ -10,6 +10,7 @@ import se.lth.cs.srl.SemanticRoleLabeler;
 import se.lth.cs.srl.corpus.Predicate;
 import se.lth.cs.srl.corpus.Sentence;
 import se.lth.cs.srl.corpus.Word;
+import se.lth.cs.srl.options.ParseOptions;
 import se.lth.cs.srl.pipeline.Reranker;
 import se.lth.cs.srl.preprocessor.PipelinedPreprocessor;
 import se.lth.cs.srl.preprocessor.Preprocessor;
@@ -48,6 +49,7 @@ public class MatePlusProcessor {
         File lemmaModel = extractMateModel("/CoNLL2009-ST-English-ALL.anna-3.3.lemmatizer.model");
         File parserModel = extractMateModel("/CoNLL2009-ST-English-ALL.anna-3.3.parser.model");
         File taggerModel = extractMateModel("/CoNLL2009-ST-English-ALL.anna-3.3.postagger.model");
+        File srlModel = extractMateModel("/CoNLL2009-ST-English-ALL.anna-3.3.srl-4.1.srl.model");
 
         // TODO: issue with the lemmatizer reader? see our TODO in Lemmatizer
         Lemmatizer lemmatizer = BohnetHelper.getLemmatizer(lemmaModel);
@@ -56,8 +58,9 @@ public class MatePlusProcessor {
 
         Preprocessor pp = new PipelinedPreprocessor(tokenizer, lemmatizer, tagger, null, parser);
 
-        //TODO: the options can't be null - we need to get rid of them or something
-        Parse.parseOptions = null; //options.getParseOptions();
+        Parse.parseOptions = new ParseOptions();
+        Parse.parseOptions.useReranker = true;
+        Parse.parseOptions.modelFile = srlModel;
         SemanticRoleLabeler srl = new Reranker(Parse.parseOptions);
 
         CompletePipeline pipeline = new CompletePipeline(pp, srl);
@@ -112,16 +115,18 @@ public class MatePlusProcessor {
     //
     // See defaultRun for example usage
     protected File extractMateModel(String resourcePath) throws IOException {
+        // Figure out temp file name - if it's already there just return it
+        File baseDir = new File(System.getProperty("java.io.tmpdir"));
+        File tempFile = new File(baseDir, "mate-" + resourcePath.replaceAll("/", "_") + ".model");
+        if (tempFile.exists() && tempFile.length() > 0) {
+            return tempFile;
+        }
+
         // Start reading resource
         InputStream readStream = edu.memphis.iis.warning.class.getResourceAsStream(resourcePath);
         if (readStream == null) {
             throw new IOException("Resource-based MATE Model cannot be found: " + resourcePath);
         }
-
-        // TODO: we re-write the models every time. Use consistent file name in temp directory instead?
-        // Setup the temp file
-        File tempFile = File.createTempFile("mate", "model");
-        tempFile.deleteOnExit();
 
         // Write to the temp file
         FileOutputStream writeStream = new FileOutputStream(tempFile);
