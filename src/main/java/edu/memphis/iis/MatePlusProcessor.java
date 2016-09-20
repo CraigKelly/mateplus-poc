@@ -3,6 +3,7 @@ package edu.memphis.iis;
 import is2.lemmatizer.Lemmatizer;
 import is2.parser.Parser;
 import is2.tag.Tagger;
+import is2.util.DB;
 import org.apache.commons.io.IOUtils;
 import se.lth.cs.srl.CompletePipeline;
 import se.lth.cs.srl.Parse;
@@ -10,6 +11,9 @@ import se.lth.cs.srl.SemanticRoleLabeler;
 import se.lth.cs.srl.corpus.Predicate;
 import se.lth.cs.srl.corpus.Sentence;
 import se.lth.cs.srl.corpus.Word;
+import se.lth.cs.srl.languages.Language;
+import se.lth.cs.srl.options.CompletePipelineCMDLineOptions;
+import se.lth.cs.srl.options.FullPipelineOptions;
 import se.lth.cs.srl.options.ParseOptions;
 import se.lth.cs.srl.pipeline.Reranker;
 import se.lth.cs.srl.preprocessor.PipelinedPreprocessor;
@@ -26,22 +30,12 @@ import java.util.Arrays;
 
 
 public class MatePlusProcessor {
-//    private static String[] pipelineOptions = new String[]{
-//            "eng",										// language
-//            "-lemma", "models/lemma-eng.model",			// lemmatization model
-//            "-tagger", "models/tagger-eng.model",		// tagger model
-//            "-parser", "models/parse-eng.model",		// parsing model
-//            "-srl", "models/srl-EMNLP14+fs-eng.model",	// SRL model
-//            "-tokenize",								// turn on word tokenization
-//            "-reranker"									// turn on reranking (part of SRL)
-//    };
-
-    /*
-    * -tokenize set loadPreprocessorWithTokenizer = true, skipPI = false, desegment = false
-    * */
-
     //TODO: accept inputStream or filename or something and then test on our sample file in test resources
-    public void defaultRun() throws ClassNotFoundException, IOException {
+    //TODO: for unit test `throws Exception` is fine, but it MUST change when this is "real" code
+    public void defaultRun() throws Exception {
+        // For now we are constrained to English
+        Language.setLanguage(Language.L.eng);
+
         // TODO: how does this work on our test file?
         Tokenizer tokenizer = new StanfordPTBTokenizer();
 
@@ -49,18 +43,25 @@ public class MatePlusProcessor {
         File lemmaModel = extractMateModel("/CoNLL2009-ST-English-ALL.anna-3.3.lemmatizer.model");
         File parserModel = extractMateModel("/CoNLL2009-ST-English-ALL.anna-3.3.parser.model");
         File taggerModel = extractMateModel("/CoNLL2009-ST-English-ALL.anna-3.3.postagger.model");
-        File srlModel = extractMateModel("/CoNLL2009-ST-English-ALL.anna-3.3.srl-4.1.srl.model");
+        File srlModel = extractMateModel("/srl-EMNLP14+fs-eng.model");
 
-        // TODO: issue with the lemmatizer reader? see our TODO in Lemmatizer
+        CompletePipelineCMDLineOptions parseOptions = new CompletePipelineCMDLineOptions();
+        parseOptions.lemmatizer = lemmaModel;
+        parseOptions.parser = parserModel;
+        parseOptions.tagger = taggerModel;
+        parseOptions.reranker = true;
+        parseOptions.srl = srlModel;
+        parseOptions.loadPreprocessorWithTokenizer = true;
+        parseOptions.skipPI = false;
+        parseOptions.desegment = false;
+        Parse.parseOptions = parseOptions.getParseOptions();
+
         Lemmatizer lemmatizer = BohnetHelper.getLemmatizer(lemmaModel);
         Parser parser = BohnetHelper.getParser(parserModel);
         Tagger tagger = BohnetHelper.getTagger(taggerModel);
 
         Preprocessor pp = new PipelinedPreprocessor(tokenizer, lemmatizer, tagger, null, parser);
 
-        Parse.parseOptions = new ParseOptions();
-        Parse.parseOptions.useReranker = true;
-        Parse.parseOptions.modelFile = srlModel;
         SemanticRoleLabeler srl = new Reranker(Parse.parseOptions);
 
         CompletePipeline pipeline = new CompletePipeline(pp, srl);
@@ -68,14 +69,16 @@ public class MatePlusProcessor {
         String text = "This is the first sentence of the rest of your life";
 
         String[] tokens = pipeline.pp.tokenize(text); // this is how you tokenize your text
+        DB.println("Tokenized text:" + Arrays.toString(tokens));
 
         Sentence s = null;
         try {
+            //TODO: SentenceData09 i.ofeats is null in SentenceData09.createWithRoot
             s = pipeline.parse(Arrays.asList(tokens));
         } catch (Exception e) {
-            throw new IllegalArgumentException(e);
+            DB.println("Error parsing tokens:" + e.toString());
+            throw e;
         }
-
 
         // a sentence is just a list of words
         int size = s.size();
@@ -119,6 +122,7 @@ public class MatePlusProcessor {
         File baseDir = new File(System.getProperty("java.io.tmpdir"));
         File tempFile = new File(baseDir, "mate-" + resourcePath.replaceAll("/", "_") + ".model");
         if (tempFile.exists() && tempFile.length() > 0) {
+            DB.println("Using pre-existing model file: " + tempFile.getCanonicalPath());
             return tempFile;
         }
 
@@ -129,6 +133,7 @@ public class MatePlusProcessor {
         }
 
         // Write to the temp file
+        DB.println("Writing model file to: " + tempFile.getCanonicalPath());
         FileOutputStream writeStream = new FileOutputStream(tempFile);
         try {
             IOUtils.copy(readStream, writeStream);

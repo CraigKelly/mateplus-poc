@@ -25,10 +25,8 @@ public class AppTest  extends TestCase {
         try {
             processor.defaultRun();
             assertTrue(true);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            fail();
-        } catch (IOException e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
             fail();
         }

@@ -52,8 +52,7 @@ public class LibLinearModel implements Model {
 	}
 
 	@Override
-	public List<Label> classifyProb(Collection<Integer> indices,
-			Map<Integer, Double> nonbinFeats) {
+	public List<Label> classifyProb(Collection<Integer> indices, Map<Integer, Double> nonbinFeats) {
 		ArrayList<Label> ret = new ArrayList<Label>(labels.size());
 		double[] probs = weightVector.computeAllProbs(indices, nonbinFeats);
 		for (int i = 0; i < probs.length; ++i) {

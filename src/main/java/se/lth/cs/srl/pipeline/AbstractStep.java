@@ -13,6 +13,7 @@ import java.util.zip.ZipOutputStream;
 import se.lth.cs.srl.Learn;
 import se.lth.cs.srl.corpus.Sentence;
 import se.lth.cs.srl.features.FeatureSet;
+import se.lth.cs.srl.ml.UkModelAdapter;
 import uk.ac.ed.inf.srl.ml.LearningProblem;
 import uk.ac.ed.inf.srl.ml.Model;
 import uk.ac.ed.inf.srl.ml.liblinear.LibLinearLearningProblem;
@@ -80,7 +81,20 @@ public abstract class AbstractStep implements PipelineStep {
 		int numberOfModels = ois.readInt();
 		for (int i = 0; i < numberOfModels; ++i) {
 			String POSPrefix = (String) ois.readObject();
-			Model m = (Model) ois.readObject();
+			Object model = ois.readObject();
+
+			Model m;
+			if (model instanceof Model) {
+				m = (Model) model;
+
+			}
+			else if (model instanceof se.lth.cs.srl.ml.Model) {
+				m = new UkModelAdapter((se.lth.cs.srl.ml.Model) model);
+			}
+			else {
+				throw new ClassCastException(model.getClass().getCanonicalName() + " is not a Model (tried both uk.ac.ed.inf.srl.ml and se.lth.cs.srl.ml)");
+			}
+
 			models.put(POSPrefix, m);
 		}
 	}

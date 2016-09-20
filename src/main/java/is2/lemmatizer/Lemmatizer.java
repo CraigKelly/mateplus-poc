@@ -178,9 +178,9 @@ public class Lemmatizer implements Tool, Train {
 			
 			pipe.cl = new Cluster(dis);
 
-			// TODO: hitting EOF Exception?
-			if (dis.available()>0) this.doUppercase = dis.readBoolean();
-		
+			// TODO: we were hitting EOF Exception? so we just default to false
+			//if (dis.available()>0) this.doUppercase = dis.readBoolean();
+			this.doUppercase = false;
 			
 			dis.close();
 			DB.println("Loading data finished. ");
@@ -198,11 +198,10 @@ public class Lemmatizer implements Tool, Train {
 
 	/**
 	 * Do the training
-	 * @param instanceLengths
 	 * @param options
-	 * @param pipe
+	 * @param p
 	 * @param params
-	 * @param li 
+	 * @param ist
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws ClassNotFoundException
