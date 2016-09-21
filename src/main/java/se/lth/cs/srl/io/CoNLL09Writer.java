@@ -13,6 +13,12 @@ public class CoNLL09Writer implements SentenceWriter {
 
 	private BufferedWriter out;
 
+	// Default construction - write to stdout
+    public CoNLL09Writer() {
+        System.out.println("Writing corpus to stdout...");
+        out = new BufferedWriter(new OutputStreamWriter(System.out));
+    }
+
 	public CoNLL09Writer(File filename) {
 		System.out.println("Writing corpus to " + filename + "...");
 		try {
@@ -29,9 +35,10 @@ public class CoNLL09Writer implements SentenceWriter {
 	public void write(Sentence s) {
 		try {
 			out.write(s.toString() + "\n\n");
+            out.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.out.println("Failed to write sentance.");
+			System.out.println("Failed to write sentence.");
 			System.exit(1);
 		}
 	}
@@ -40,9 +47,10 @@ public class CoNLL09Writer implements SentenceWriter {
 	public void specialwrite(Sentence s) {
 		try {
 			out.write(s.toSpecialString() + "\n\n");
+            out.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.out.println("Failed to write sentance.");
+			System.out.println("Failed to write sentence.");
 			System.exit(1);
 		}
 	}

@@ -487,8 +487,11 @@ public class SentenceData09 {
 			
 
 		//	if (i.ofeats!=null)  ofeats[j] = i.ofeats[j+offset];
-			
-			ofeats[j]= i.ofeats[j+offset].equals(CONLLWriter09.DASH)? "_" : i.ofeats[j+offset];
+
+            if (i.ofeats!=null) {
+                ofeats[j]= i.ofeats[j+offset].equals(CONLLWriter09.DASH)? "_" : i.ofeats[j+offset];
+            }
+
 			
 	//		if (i.pfeats!=null)	pfeats[j] = i.pfeats[j+offset];
 

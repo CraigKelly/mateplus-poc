@@ -11,6 +11,8 @@ import se.lth.cs.srl.SemanticRoleLabeler;
 import se.lth.cs.srl.corpus.Predicate;
 import se.lth.cs.srl.corpus.Sentence;
 import se.lth.cs.srl.corpus.Word;
+import se.lth.cs.srl.io.CoNLL09Writer;
+import se.lth.cs.srl.io.SentenceWriter;
 import se.lth.cs.srl.languages.Language;
 import se.lth.cs.srl.options.CompletePipelineCMDLineOptions;
 import se.lth.cs.srl.options.FullPipelineOptions;
@@ -20,6 +22,7 @@ import se.lth.cs.srl.preprocessor.PipelinedPreprocessor;
 import se.lth.cs.srl.preprocessor.Preprocessor;
 import se.lth.cs.srl.preprocessor.tokenization.StanfordPTBTokenizer;
 import se.lth.cs.srl.preprocessor.tokenization.Tokenizer;
+import se.lth.cs.srl.preprocessor.tokenization.WhiteSpaceTokenizer;
 import se.lth.cs.srl.util.BohnetHelper;
 
 import java.io.File;
@@ -36,8 +39,7 @@ public class MatePlusProcessor {
         // For now we are constrained to English
         Language.setLanguage(Language.L.eng);
 
-        // TODO: how does this work on our test file?
-        Tokenizer tokenizer = new StanfordPTBTokenizer();
+        Tokenizer tokenizer =  new StanfordPTBTokenizer();
 
         // Get the models we need from our model dependency
         File lemmaModel = extractMateModel("/CoNLL2009-ST-English-ALL.anna-3.3.lemmatizer.model");
@@ -66,19 +68,14 @@ public class MatePlusProcessor {
 
         CompletePipeline pipeline = new CompletePipeline(pp, srl);
 
-        String text = "This is the first sentence of the rest of your life";
+        SentenceWriter writer = new CoNLL09Writer();  // stdout writer
 
-        String[] tokens = pipeline.pp.tokenize(text); // this is how you tokenize your text
-        DB.println("Tokenized text:" + Arrays.toString(tokens));
+        String text = "No one actually knows what drives reef resilience or even what a coral reef looks like as it's rebounding.";
+        Sentence s = pipeline.parse(text);
+        writer.write(s);
 
-        Sentence s = null;
-        try {
-            //TODO: SentenceData09 i.ofeats is null in SentenceData09.createWithRoot
-            s = pipeline.parse(Arrays.asList(tokens));
-        } catch (Exception e) {
-            DB.println("Error parsing tokens:" + e.toString());
-            throw e;
-        }
+        System.out.println("");
+        System.out.println("Some additional output for good measure");
 
         // a sentence is just a list of words
         int size = s.size();
@@ -105,8 +102,6 @@ public class MatePlusProcessor {
 
             System.out.println();
         }
-
-        //TODO: CoNLL 2009 SRL output
     }
 
     // Extract the model specified from the mate-models package.
