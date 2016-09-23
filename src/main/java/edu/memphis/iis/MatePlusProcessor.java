@@ -60,38 +60,49 @@ public class MatePlusProcessor {
         Parse.parseOptions = parseOptions.getParseOptions();
 
         Lemmatizer lemmatizer = BohnetHelper.getLemmatizer(lemmaModel);
-        Parser parser = BohnetHelper.getParser(parserModel);
         Tagger tagger = BohnetHelper.getTagger(taggerModel);
-
+        Parser parser = BohnetHelper.getParser(parserModel);
         Preprocessor pp = new PipelinedPreprocessor(tokenizer, lemmatizer, tagger, null, parser);
-
         SemanticRoleLabeler srl = new Reranker(Parse.parseOptions);
-
         CompletePipeline pipeline = new CompletePipeline(pp, srl);
 
         SentenceWriter writer = new CoNLL09Writer();  // stdout writer
 
+        synchronized (parser) {
+            DB.println("Synching on parser as safety measure");
+        }
+
         String text = "No one actually knows what drives reef resilience or even what a coral reef looks like as it's rebounding.";
 
-        // Correct form: Sentence s = pipeline.parse(text);
-        String[] tokens = pp.tokenize(text);
-        System.out.println("Tokens:" + Arrays.toString(tokens));
-        Sentence s = new Sentence(pp.preprocess(tokens), false);
-        System.out.println("Preprocessed S:\n" + s.toString());
-        srl.parseSentence(s);
-        System.out.println("Post SRL:\n" + s.toString());
+        String[] tokens = tokenizer.tokenize(text);
+        SentenceData09 instance = new SentenceData09();
+        instance.init(tokens);
+
+        instance = lemmatizer.apply(instance);
+        instance = tagger.apply(instance);
+
+        // No mtagger
+        instance.pfeats = new String[instance.forms.length];
+        Arrays.fill(instance.pfeats, "_");
+
+        synchronized (parser) {
+            instance = parser.apply(instance);
+        }
+
+        Sentence processed = new Sentence(instance, false);
+        srl.parseSentence(processed);
 
         System.out.println("");
         System.out.println("Actual Output:");
-        writer.write(s);
+        writer.write(processed);
 
         System.out.println("");
         System.out.println("Some additional output for good measure");
 
         // a sentence is just a list of words
-        int size = s.size();
+        int size = processed.size();
         for(int i = 1; i<size; i++) {
-            Word w = s.get(i); // skip word number 0 (ROOT token)
+            Word w = processed.get(i); // skip word number 0 (ROOT token)
             // each word object contains information about a word's actual word form / lemma / POS
             System.out.println(w.getForm() + "\t " + w.getLemma() + "\t" + w.getPOS());
         }
@@ -99,7 +110,7 @@ public class MatePlusProcessor {
         System.out.println();
 
         // some words in a sentence are recognized as predicates
-        for(Predicate p : s.getPredicates()) {
+        for(Predicate p : processed.getPredicates()) {
             // every predicate has a sense that defines its semantic frame
             System.out.println(p.getForm() + " (" + p.getSense()+ ")");
             // show arguments from the semantic frame that are instantiated in a sentence
