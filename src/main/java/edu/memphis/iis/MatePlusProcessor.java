@@ -1,5 +1,6 @@
 package edu.memphis.iis;
 
+import is2.data.SentenceData09;
 import is2.lemmatizer.Lemmatizer;
 import is2.parser.Parser;
 import is2.tag.Tagger;
@@ -71,7 +72,17 @@ public class MatePlusProcessor {
         SentenceWriter writer = new CoNLL09Writer();  // stdout writer
 
         String text = "No one actually knows what drives reef resilience or even what a coral reef looks like as it's rebounding.";
-        Sentence s = pipeline.parse(text);
+
+        // Correct form: Sentence s = pipeline.parse(text);
+        String[] tokens = pp.tokenize(text);
+        System.out.println("Tokens:" + Arrays.toString(tokens));
+        Sentence s = new Sentence(pp.preprocess(tokens), false);
+        System.out.println("Preprocessed S:\n" + s.toString());
+        srl.parseSentence(s);
+        System.out.println("Post SRL:\n" + s.toString());
+
+        System.out.println("");
+        System.out.println("Actual Output:");
         writer.write(s);
 
         System.out.println("");
