@@ -38,3 +38,9 @@ over 600MB.
 The original project used to build the model jar is in the sub-directory
 `mateplus-models`. It is there for documentation purposes - you shouldn't need
 to build or run it.
+
+# Sample Code
+
+See the sample directory for code that loads and uses the models.
+
+To see the sample code in action, you can run the unit tests with `mvn test`.
