@@ -1,0 +1,49 @@
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
+>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>edu.memphis.iis</groupId>
+    <artifactId>mateplus-models</artifactId>
+    <version>4.31</version> <!-- synced to com.googlecode.mate-tools/srl -->
+    <name>mateplus-models</name>
+    <packaging>jar</packaging>
+
+    <dependencies>
+    </dependencies>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>repo.iis.memphis.edu</id>
+            <url>s3://repo.iis.memphis.edu/snapshot</url>
+        </snapshotRepository>
+        <repository>
+            <id>repo.iis.memphis.edu</id>
+            <url>s3://repo.iis.memphis.edu/release</url>
+        </repository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>repo.iis.memphis.edu</id>
+            <url>s3://repo.iis.memphis.edu/release</url>
+        </repository>
+    </repositories>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>models</directory>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+
+        <extensions>
+            <extension>
+                <groupId>org.kuali.maven.wagons</groupId>
+                <artifactId>maven-s3-wagon</artifactId>
+                <version>1.2.1</version>
+            </extension>
+        </extensions>
+    </build>
+</project>

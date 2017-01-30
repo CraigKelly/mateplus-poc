@@ -34,15 +34,13 @@ import java.util.Arrays;
 
 
 public class MatePlusProcessor {
-    //TODO: accept inputStream or filename or something and then test on our sample file in test resources
-    //TODO: for unit test `throws Exception` is fine, but it MUST change when this is "real" code
-    public void defaultRun() throws Exception {
-        // For now we are constrained to English
+    protected CompletePipeline pipeline;
+
+    public MatePlusProcessor() {
         Language.setLanguage(Language.L.eng);
+    }
 
-        Tokenizer tokenizer =  new StanfordPTBTokenizer();
-
-        // Get the models we need from our model dependency
+    public void initModels() throws IOException {
         File lemmaModel = extractMateModel("/CoNLL2009-ST-English-ALL.anna-3.3.lemmatizer.model");
         File parserModel = extractMateModel("/CoNLL2009-ST-English-ALL.anna-3.3.parser.model");
         File taggerModel = extractMateModel("/CoNLL2009-ST-English-ALL.anna-3.3.postagger.model");
@@ -57,72 +55,21 @@ public class MatePlusProcessor {
         parseOptions.loadPreprocessorWithTokenizer = true;
         parseOptions.skipPI = false;
         parseOptions.desegment = false;
-        Parse.parseOptions = parseOptions.getParseOptions();
 
-        Lemmatizer lemmatizer = BohnetHelper.getLemmatizer(lemmaModel);
-        Tagger tagger = BohnetHelper.getTagger(taggerModel);
-        Parser parser = BohnetHelper.getParser(parserModel);
-        Preprocessor pp = new PipelinedPreprocessor(tokenizer, lemmatizer, tagger, null, parser);
-        SemanticRoleLabeler srl = new Reranker(Parse.parseOptions);
-        CompletePipeline pipeline = new CompletePipeline(pp, srl);
-
-        SentenceWriter writer = new CoNLL09Writer();  // stdout writer
-
-        synchronized (parser) {
-            DB.println("Synching on parser as safety measure");
+        try {
+            pipeline = CompletePipeline.getCompletePipeline(parseOptions);
         }
-
-        String text = "No one actually knows what drives reef resilience or even what a coral reef looks like as it's rebounding.";
-
-        String[] tokens = tokenizer.tokenize(text);
-        SentenceData09 instance = new SentenceData09();
-        instance.init(tokens);
-
-        instance = lemmatizer.apply(instance);
-        instance = tagger.apply(instance);
-
-        // No mtagger
-        instance.pfeats = new String[instance.forms.length];
-        Arrays.fill(instance.pfeats, "_");
-
-        synchronized (parser) {
-            instance = parser.apply(instance);
+        catch(ClassNotFoundException e) {
+            throw new IOException("Invalid model file used for MATE+", e);
         }
+    }
 
-        Sentence processed = new Sentence(instance, false);
-        srl.parseSentence(processed);
-
-        System.out.println("");
-        System.out.println("Actual Output:");
-        writer.write(processed);
-
-        System.out.println("");
-        System.out.println("Some additional output for good measure");
-
-        // a sentence is just a list of words
-        int size = processed.size();
-        for(int i = 1; i<size; i++) {
-            Word w = processed.get(i); // skip word number 0 (ROOT token)
-            // each word object contains information about a word's actual word form / lemma / POS
-            System.out.println(w.getForm() + "\t " + w.getLemma() + "\t" + w.getPOS());
+    public Sentence parse(String one) {
+        try {
+            return pipeline.parse(one);
         }
-
-        System.out.println();
-
-        // some words in a sentence are recognized as predicates
-        for(Predicate p : processed.getPredicates()) {
-            // every predicate has a sense that defines its semantic frame
-            System.out.println(p.getForm() + " (" + p.getSense()+ ")");
-            // show arguments from the semantic frame that are instantiated in a sentence
-            for(Word arg : p.getArgMap().keySet()) {
-                System.out.print("\t" + p.getArgMap().get(arg) + ":");
-                // "arg" is just the syntactic head word; let's iterate through all words in the argument span
-                for(Word w : arg.getSpan())
-                    System.out.print(" " + w.getForm());
-                System.out.println();
-            }
-
-            System.out.println();
+        catch(Exception e) {
+            throw new RuntimeException("MATE+ pipelined parser failed", e);
         }
     }
 

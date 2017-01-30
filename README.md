@@ -1,64 +1,40 @@
 # mateplus-poc
 
-__Working effort at a usable MATE+ library__
+This is more of a demo and a wrapper around MATE+.
+
+If you are looking at this, you are probably interested in the file
+`sample/deps.sh`
 
 # License
 
-Note that our LICENSE file is GPL v2. This was not our choice (although it's
-not a bad choice). We are using the original license from the two packages
-forked/combined for this package:
+All code in the repository is released under the MIT license,
+
+However, the two main libraries in use are licensed under the GPL v2:
 
 * Bohnet's "Anna" code (matetools) from
   https://code.google.com/archive/p/mate-tools/source/default/source
 * mateplus from https://github.com/microth/mateplus
 
-# Using
+# Dependencies
 
-This project assumes a Java 8 and Maven build system. Also note that for
-running unit tests or executing the models you'll probably need to insure
-that the VM has enough memory. If you're using an IDE to run the unit
-tests, you probably need to add VM options to the Run Configuration. 
+You should have Java 8, a recent version of Maven (`mvn`), and `wget` (for the
+scripts that download dependencies).
 
-In addition, you'll need our Mavenized MATE model jar (which is over 600MB):
+All scripts should run on a system with a recent-ish bash shell. (Note that you
+can now get an Ubuntu core with bash running on Windows 10. :)
 
-```
-<dependency>
-    <groupId>edu.memphis.iis</groupId>
-    <artifactId>mateplus-models</artifactId>
-    <version>4.31</version>
-</dependency>
-```
+Also note that for running unit tests or executing the models you'll probably
+need to insure that the JVM has enough memory. If you're using an IDE to run
+the unit tests, you probably need to add VM options to the Run Configuration.
 
-Both the jar and the pom.xml file are stored in a private S3 repository so the
-normal Maven dependency resolution won't work for you. Luckily, it's not a
-public repository due to S3's lack of directory indexing. The files *are*
-available via public HTTP access. If you are on a Unix-like system you can use
-the bash script `tools/get-models`. You'll need `wget` and `mvn` (Maven)
-installed. To run the script...
+Before running this sample project, you need to make sure that you have
+installed the models and libraries you need. You can do this by running
+`script/deps.sh`. It downloads and installs the necessary JAR's into the local
+Maven repository. Note that this includes a MATE model jar that clocks in at
+over 600MB.
 
-## Debian/Ubuntu based Linux
+# The Models
 
-If for some reason `wget` and `mvn` aren't already installed:
-
-```
-$ sudo apt-get install wget maven
-```
-
-To download and install the models into your local Maven repository:
-
-```
-$ cd tools
-$ ./get-models
-```
-
-## Mac
-
-Running the script is the same as above. However, you'll need to install wget
-with Homebrew, MacPorts, Fink, or some other technique. we assume that you
-have already installed Maven.
-
-## Windows
-
-You can follow the Ubuntu directions above once you have installed the Windows
-Ubuntu dev tools. Please see
-http://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/
+The original project used to build the model jar is in the sub-directory
+`mateplus-models`. It is there for documentation purposes - you shouldn't need
+to build or run it.

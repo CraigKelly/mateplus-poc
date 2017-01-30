@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>edu.memphis.iis</groupId>
-    <artifactId>mateplus-poc</artifactId>
+    <artifactId>mateplus-poc-nocode</artifactId>
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
 
@@ -36,6 +36,27 @@
 
     <dependencies>
         <dependency>
+            <groupId>edu.memphis.iis</groupId>
+            <artifactId>anna-dep</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.memphis.iis</groupId>
+            <artifactId>mateplus-dep</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.memphis.iis</groupId>
+            <artifactId>mateplus-models</artifactId>
+            <version>4.31</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.5</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math</artifactId>
             <version>2.2</version>
@@ -46,11 +67,6 @@
             <version>2.0.2</version>
         </dependency>
 
-        <dependency>
-            <groupId>edu.memphis.iis</groupId>
-            <artifactId>mateplus-models</artifactId>
-            <version>4.31</version>
-        </dependency>
         <dependency>
             <groupId>de.bwaldvogel</groupId>
             <artifactId>liblinear</artifactId>
@@ -66,11 +82,6 @@
             <artifactId>stanford-corenlp</artifactId>
             <version>3.6.0</version>
             <classifier>models</classifier>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.5</version>
         </dependency>
 
         <dependency>
