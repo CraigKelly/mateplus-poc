@@ -2,8 +2,12 @@
 
 This is more of a demo and a wrapper around MATE+.
 
-If you are looking at this, you are probably interested in the file
-`sample/deps.sh`
+If you are looking at this, you are probably interested in the files
+
+`script/deps.sh` to set things up and
+
+`cd sample && mvn test` to show the wrapper in action
+
 
 # License
 
@@ -43,4 +47,4 @@ to build or run it.
 
 See the sample directory for code that loads and uses the models.
 
-To see the sample code in action, you can run the unit tests with `mvn test`.
+To see the sample code in action, you can run the unit tests with `cd sample && mvn test`.
