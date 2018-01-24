@@ -20,7 +20,26 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
-
+    
+    <distributionManagement>
+        <snapshotRepository>
+            <id>repo.iis.memphis.edu</id>
+            <url>https://s3.amazonaws.com/repo.iis.memphis.edu/snapshot</url>
+        </snapshotRepository>
+        <repository>
+            <id>repo.iis.memphis.edu</id>
+            <url>https://s3.amazonaws.com/repo.iis.memphis.edu/release</url>
+        </repository>
+    </distributionManagement>
+    
+    
+    <repositories>
+        <repository>
+            <id>repo.iis.memphis.edu</id>
+            <url>https://s3.amazonaws.com/repo.iis.memphis.edu/release</url>
+        </repository>
+    </repositories>
+    
     <build>
         <plugins>
             <plugin>
@@ -30,8 +49,14 @@
                     <argLine>-Xmn1024m -Xmx4096m</argLine>
                 </configuration>
             </plugin>
-
         </plugins>
+        <extensions>
+            <extension>
+                <groupId>org.kuali.maven.wagons</groupId>
+                <artifactId>maven-s3-wagon</artifactId>
+                <version>1.2.1</version>
+            </extension>
+        </extensions>
     </build>
 
     <dependencies>
@@ -91,5 +116,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    
+    
 
 </project>
